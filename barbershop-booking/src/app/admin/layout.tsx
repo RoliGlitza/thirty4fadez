@@ -1,3 +1,5 @@
+import { Analytics } from "@vercel/analytics/next"
+
 export default function AdminLayout({
   children,
 }: {
@@ -6,6 +8,7 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-black text-white px-4 py-6 max-w-sm mx-auto">
       {children}
+      <Analytics />
     </div>
   )
 }
