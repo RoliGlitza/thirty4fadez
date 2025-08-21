@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@lib/supabaseClient'
-import { format, parseISO } from 'date-fns'
 import AdminNavbar from 'src/app/components/AdminNavbar'
 import Link from 'next/link'
+import { format, parseISO } from 'date-fns'
+
 
 type Slot = {
   id: string
