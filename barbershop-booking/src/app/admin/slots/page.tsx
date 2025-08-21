@@ -70,6 +70,24 @@ export default function AdminSlotsPage() {
     )
   }
 
+const deleteFreeSlot = async (slotId: string) => {
+  const confirm = window.confirm('❗ Diesen freien Slot wirklich löschen?')
+  if (!confirm) return
+
+  const { error } = await supabase
+    .from('slots')
+    .delete()
+    .eq('id', slotId)
+
+  if (error) {
+    alert('❌ Fehler beim Löschen: ' + error.message)
+  } else {
+    alert('🗑️ Slot gelöscht.')
+    setSlots((prev) => prev.filter((s) => s.id !== slotId))
+  }
+}
+
+
 useEffect(() => {
   const fetchDates = async () => {
     const today = new Date().toISOString().split('T')[0] // ⏰ nur ab heute
@@ -173,7 +191,16 @@ useEffect(() => {
                     </button>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 mt-2">Frei</p>
+                  <div className="mt-2 flex items-center justify-between">
+  <p className="text-sm text-gray-500">Frei</p>
+  <button
+    onClick={() => deleteFreeSlot(slot.id)}
+    className="text-xs bg-gray-700 hover:bg-red-600 px-3 py-1 rounded text-white"
+  >
+    Slot löschen
+  </button>
+</div>
+
                 )}
               </li>
             )

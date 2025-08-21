@@ -21,8 +21,15 @@ export default function TimeSlots({ date, selectedTime, onSelect }: Props) {
         .eq('is_booked', false)
 
       if (!error && data) {
-        const times = data.map((slot) => slot.start_time.slice(0, 5))
-        setAvailableTimes(times)
+        const times = Array.from(
+  new Set(
+    data
+      .map((slot) => slot.start_time.slice(0, 5))
+      .sort((a, b) => a.localeCompare(b)) // Uhrzeit sortieren
+  )
+)
+setAvailableTimes(times)
+
       }
     }
 

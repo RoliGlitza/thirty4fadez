@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@lib/supabaseClient'
 import TimeSlots from './TimeSlots'
+import { saveAs } from 'file-saver'
+
 
 export default function BookingForm() {
   const [name, setName] = useState('')
@@ -55,6 +57,8 @@ const getServicePrice = (s: string) => {
     console.log('⛔ handleSubmit abgebrochen – Felder unvollständig.')
     return
   }
+
+
 
     setLoading(true)
 
@@ -114,6 +118,34 @@ if (slotCheckError || slotCheck?.is_booked) {
   if (success) {
   const formattedDate = new Date(date).toLocaleDateString('de-CH') // z.B. 31.07.2025
 
+    const downloadICS = () => {
+  const eventTitle = `Termin bei THIRTY4 Fadez – ${service}`
+  const eventLocation = 'Rossgassmoos 7, 6130 Willisau'
+  const eventDescription = 'Bezahlung bar vor Ort. Bitte pünktlich erscheinen ✂️'
+
+  const start = new Date(`${date}T${time}`)
+  const end = new Date(start.getTime() + (service === 'Haare & Bart' ? 60 : 30) * 60000)
+
+  const formatDate = (d: Date) => {
+    return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+  }
+
+  const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:${eventTitle}
+DTSTART:${formatDate(start)}
+DTEND:${formatDate(end)}
+LOCATION:${eventLocation}
+DESCRIPTION:${eventDescription}
+END:VEVENT
+END:VCALENDAR`
+
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' })
+  saveAs(blob, `termin-thirty4fadez.ics`)
+}
+
+
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
       <div className="max-w-sm text-center space-y-6 p-6 bg-gray-900 rounded-xl shadow-xl">
@@ -150,6 +182,13 @@ if (slotCheckError || slotCheck?.is_booked) {
           >
             Apple Karten
           </a>
+          <button
+  onClick={downloadICS}
+  className="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg mt-2"
+>
+  📅 Zum Kalender hinzufügen
+</button>
+
         </div>
       </div>
     </div>
