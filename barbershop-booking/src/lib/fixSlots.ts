@@ -104,6 +104,7 @@ export async function checkSlotConsistency() {
     }
 
   } catch (error) {
+    console.error('Unerwarteter Fehler:', error)
     return { success: false, error: 'Unerwarteter Fehler' }
   }
 }

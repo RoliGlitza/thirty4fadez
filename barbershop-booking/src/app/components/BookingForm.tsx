@@ -5,6 +5,7 @@ import { supabase } from 'lib/supabaseClient'
 import TimeSlots from './TimeSlots'
 import { saveAs } from 'file-saver'
 import { sendTelegramMessage } from '@lib/sendTelegramMessage'
+import Image from 'next/image'
 
 
 
@@ -217,7 +218,7 @@ END:VCALENDAR`
         className="bg-black p-6 rounded-xl shadow-lg space-y-4"
       >
         <div className="text-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mx-auto mb-2" />
+          <Image src="/logo.png" alt="Logo" width={40} height={40} className="h-10 mx-auto mb-2" />
           <h1 className="text-xl font-bold text-[#FC02BF]">Termin buchen</h1>
         </div>
 
