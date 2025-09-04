@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '../../../../lib/supabaseClient'
+import { supabase } from '@lib/supabaseClient'
 import AdminNavbar from 'src/app/components/AdminNavbar'
 import Link from 'next/link'
 import { format, parseISO } from 'date-fns'
