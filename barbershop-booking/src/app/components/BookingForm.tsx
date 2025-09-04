@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from 'lib/supabaseClient'
+import { supabase } from '../../../lib/supabaseClient'
 import TimeSlots from './TimeSlots'
 import { saveAs } from 'file-saver'
 import { sendTelegramMessage } from '@lib/sendTelegramMessage'
