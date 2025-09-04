@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@lib/supabaseClient'
+import { supabase } from 'lib/supabaseClient'
 import TimeSlots from './TimeSlots'
 import { saveAs } from 'file-saver'
+import { sendTelegramMessage } from '@lib/sendTelegramMessage'
+
 
 
 export default function BookingForm() {
@@ -114,6 +116,14 @@ if (slotCheckError || slotCheck?.is_booked) {
       setSuccess(true)
     }
   }
+
+  const message = `📅 Neue Buchung bei THIRTY4 Fadez!
+
+👤 Name: ${name}
+✂️ Service: ${service}
+⏰ Uhrzeit: ${time}`
+sendTelegramMessage(message)
+
 
   if (success) {
   const formattedDate = new Date(date).toLocaleDateString('de-CH') // z.B. 31.07.2025
