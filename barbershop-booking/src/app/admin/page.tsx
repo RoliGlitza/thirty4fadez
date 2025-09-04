@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@lib/supabaseClient'
+import { supabase } from 'lib/supabaseClient'
 import { format } from 'date-fns'
 import AdminNavbar from 'src/app/components/AdminNavbar'
 import { Button } from '@/components/ui/button'
@@ -102,6 +102,13 @@ export default function AdminPage() {
     const confirm = window.confirm('❗ Termin wirklich löschen und Slot freigeben?')
     if (!confirm) return
 
+    // Erst den Termin finden, um die Slot-Informationen zu bekommen
+    const appointment = appointments.find(a => a.id === apptId)
+    if (!appointment) {
+      return alert('❌ Termin nicht gefunden.')
+    }
+
+    // 1. Termin löschen
     const { error: deleteError } = await supabase
       .from('appointments')
       .delete()
@@ -109,13 +116,18 @@ export default function AdminPage() {
 
     if (deleteError) return alert('❌ Fehler beim Löschen: ' + deleteError.message)
 
+    // 2. Slot freigeben - über date und start_time finden (robuster)
     const { error: slotUpdateError } = await supabase
       .from('slots')
-      .update({ is_booked: false, appointment_id: null })
-      .eq('appointment_id', apptId)
+      .update({ 
+        is_booked: false, 
+        appointment_id: null 
+      })
+      .eq('date', appointment.date)
+      .eq('start_time', appointment.start_time)
 
     if (slotUpdateError) {
-      alert('❌ Termin gelöscht, aber Slot konnte nicht freigegeben werden.')
+      alert('❌ Termin gelöscht, aber Slot konnte nicht freigegeben werden: ' + slotUpdateError.message)
     } else {
       alert('✅ Termin gelöscht & Slot freigegeben.')
     }
@@ -123,6 +135,7 @@ export default function AdminPage() {
     setAppointments((prev) => prev.filter((a) => a.id !== apptId))
     setEditId(null)
   }
+
 
   return (
     <>

@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@lib/supabaseClient'
+import { supabase } from 'lib/supabaseClient'
 import AdminNavbar from 'src/app/components/AdminNavbar'
 import Link from 'next/link'
 import { format, parseISO } from 'date-fns'
+import { fixOrphanedSlots, checkSlotConsistency } from '@lib/fixSlots'
 
 
 type Slot = {
@@ -59,6 +60,9 @@ export default function AdminSlotsPage() {
       return alert('❌ Fehler beim Freigeben des Slots: ' + updateError.message)
     }
 
+    // Debug: Überprüfen ob der Slot korrekt aktualisiert wurde
+    console.log('✅ Slot freigegeben:', { slotId: slot.id, is_booked: false, appointment_id: null })
+
     alert('✅ Slot erfolgreich freigegeben & Termin gelöscht.')
 
     setSlots((prev) =>
@@ -84,6 +88,44 @@ const deleteFreeSlot = async (slotId: string) => {
   } else {
     alert('🗑️ Slot gelöscht.')
     setSlots((prev) => prev.filter((s) => s.id !== slotId))
+  }
+}
+
+const handleFixSlots = async () => {
+  const confirm = window.confirm('🔧 Verwaiste Slots reparieren? Dies setzt alle Slots mit appointment_id: null auf is_booked: false.')
+  if (!confirm) return
+
+  const result = await fixOrphanedSlots()
+  if (result.success) {
+    alert(`✅ ${result.fixed} Slots erfolgreich repariert!`)
+    // Slots neu laden
+    if (selectedDate) {
+      const { data, error } = await supabase
+        .from('slots')
+        .select(`
+          *,
+          appointment:appointment_id (name, service)
+        `)
+        .eq('date', selectedDate)
+        .order('start_time', { ascending: true })
+
+      if (!error && data) setSlots(data)
+    }
+  } else {
+    alert(`❌ Fehler beim Reparieren: ${result.error}`)
+  }
+}
+
+const handleCheckConsistency = async () => {
+  const result = await checkSlotConsistency()
+  if (result.success) {
+    if (result.hasIssues) {
+      alert(`⚠️ ${result.issues.length} Konsistenz-Probleme gefunden:\n\n${result.issues.join('\n')}`)
+    } else {
+      alert('✅ Alle Slots sind konsistent!')
+    }
+  } else {
+    alert(`❌ Fehler beim Überprüfen: ${result.error}`)
   }
 }
 
@@ -136,6 +178,22 @@ useEffect(() => {
       <AdminNavbar />
 
       <div className="mt-4" />
+
+      {/* Slot-Reparatur Buttons */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={handleCheckConsistency}
+          className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg border border-gray-600 transition-colors"
+        >
+          🔍 Konsistenz prüfen
+        </button>
+        <button
+          onClick={handleFixSlots}
+          className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg border border-gray-600 transition-colors"
+        >
+          🔧 Slots reparieren
+        </button>
+      </div>
 
       {availableDates.length > 0 ? (
         <select

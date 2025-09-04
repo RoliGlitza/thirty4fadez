@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@lib/supabaseClient'
+import { supabase } from 'lib/supabaseClient'
 
 type Props = {
   date: string
@@ -16,20 +16,27 @@ export default function TimeSlots({ date, selectedTime, onSelect }: Props) {
     const fetchAvailableSlots = async () => {
       const { data, error } = await supabase
         .from('slots')
-        .select('start_time')
+        .select('start_time, is_booked, appointment_id')
         .eq('date', date)
-        .eq('is_booked', false)
+        .or('is_booked.eq.false,appointment_id.is.null')
 
       if (!error && data) {
+        // Filtere nur wirklich verfügbare Slots
+        const availableSlots = data.filter(slot => 
+          slot.is_booked === false || slot.appointment_id === null
+        )
+        
         const times = Array.from(
-  new Set(
-    data
-      .map((slot) => slot.start_time.slice(0, 5))
-      .sort((a, b) => a.localeCompare(b)) // Uhrzeit sortieren
-  )
-)
-setAvailableTimes(times)
-
+          new Set(
+            availableSlots
+              .map((slot) => slot.start_time.slice(0, 5))
+              .sort((a, b) => a.localeCompare(b)) // Uhrzeit sortieren
+          )
+        )
+        setAvailableTimes(times)
+        
+        // Debug: Log verfügbare Slots
+        console.log('📅 Verfügbare Slots für', date, ':', times)
       }
     }
 

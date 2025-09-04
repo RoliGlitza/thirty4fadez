@@ -114,15 +114,18 @@ if (slotCheckError || slotCheck?.is_booked) {
       alert('❌ Slot-Update-Fehler: ' + slotError.message)
     } else {
       setSuccess(true)
-    }
-  }
-
-  const message = `📅 Neue Buchung bei THIRTY4 Fadez!
+      
+      // Telegram-Nachricht nur bei erfolgreicher Buchung senden
+      const message = `📅 Neue Buchung bei THIRTY4 Fadez!
 
 👤 Name: ${name}
 ✂️ Service: ${service}
-⏰ Uhrzeit: ${time}`
-sendTelegramMessage(message)
+⏰ Uhrzeit: ${time}
+📅 Datum: ${new Date(date).toLocaleDateString('de-CH')}`
+      
+      sendTelegramMessage(message)
+    }
+  }
 
 
   if (success) {
