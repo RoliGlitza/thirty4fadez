@@ -1,7 +1,7 @@
 // src/lib/slotGenerator.ts
 import { addMinutes, isBefore } from 'date-fns'
 
-export function generateTimeSlots(start: string, end: string, interval = 30) {
+export function generateTimeSlots(start: string, end: string, interval = 45) {
   const slots: { start_time: string; end_time: string }[] = []
   let current = new Date(`1970-01-01T${start}`)
   const endDate = new Date(`1970-01-01T${end}`)
